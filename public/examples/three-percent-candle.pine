@@ -1,0 +1,4 @@
+//@version=6
+indicator("Three percent candle")
+candleMove = (close - open) / open * 100
+alertcondition(math.abs(candleMove) >= 3, "Large move", "15-minute candle moved at least 3 percent")

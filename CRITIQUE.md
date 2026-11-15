@@ -1,0 +1,33 @@
+# FINN acceptance audit · 14 November 2026
+
+Each row is a check to run against the prototype. The ENAM brief requires an accessible mobile prototype, portfolio monitoring and general primary-source research. Its worked examples are optional. This review tests the features FINN actually advertises.
+
+| ID | Check | Expected observation |
+|---|---|---|
+| 1 | Run and package | The documented test command runs the entire suite. Types, production build and source archive are usable. |
+| 2 | Portfolio and sources | 15–20 distinct companies, real close and volume observations, filings with usable URLs and dated documents for several research companies. |
+| 3 | EOD alerts | Compare completed days only, exclude today's volume from its baseline, apply both thresholds and preserve missing values. |
+| 4 | Filing digest | Default 24h, selectable window, priority order, collapsed routine filings, all matching items reachable and duplicate versions handled consistently. |
+| 5 | Research | Company, question and period determine the evidence. Results show source pages. Unavailable coverage is explicit. An unseen ticker has a discovery path. |
+| 6 | Model boundary | Missing configuration, invalid model output or an unavailable model should still leave usable evidence. Validate all fields rendered by the client. |
+| 7 | Refresh and storage | Preserve the last good data on source failure. A simultaneous research import and refresh must both survive. |
+| 8 | Mobile workflows | Phone navigation, saved preferences, digest filters, company switching, research results and refresh feedback work through the app. |
+| 9 | Product claims | The interface promises only outputs it can show. Identify optional examples and externally dependent work separately. |
+| 10 | Delivery | Verify the source ZIP and record which hosting, repository, build-history and covering-note deliverables exist. |
+
+## Results
+
+| ID | Before review | After rebuilding and verification |
+|---|---|---|
+| 1 | **Failed** · README ran only the nine engine tests. The original full suite passed 14/14 but missed all five new baseline cases. | **Passed locally** · npm test runs all 22 cases. Full ESLint, TypeScript and five-stage production build passed. Source archive integrity and key entries checked. Dependencies were already installed for this build. |
+| 2 | **Passed with dated data** · 18 histories, 290 filings, 8 research documents across 5 companies. | **Passed** · refreshed bundled snapshot has 18 histories and 296 filings, with all 19 connector checks successful. The portfolio and research universe are separate. Source coverage can change. |
+| 3 | **Failed** · missing volume became a zero ratio and the price import required 22 observations although 21 suffice. | **Fixed** · unknown volume remains unknown. Twenty prior observations plus the current session now qualify. Browser-confirmed threshold persistence. Raw closing prices remain sensitive to corporate actions. |
+| 4 | **Failed** · an old duplicate could suppress an in-window filing. Only three named filter categories were selectable. Newspaper publication and employee-option notices appeared as priority items. | **Fixed** · filter dates before deduplication, keep newest qualifying copy, expose all observed categories, and lower routine notice priority. The 30-day results filter returned original filing links in the phone test. Priority remains a keyword heuristic. |
+| 5 | **Failed** · the UI lacked the API’s period filter, filler words produced unrelated hits, recently discovered documents did not populate the evidence panel, and COFORGE notices were labelled earnings transcripts. | **Fixed with coverage limits** · FY27-Q2 filtering returned Infosys evidence on the selected period. An unrelated query abstained. Live MPHASIS discovery returned six passages and saved two transcripts. COFORGE’s notice-only attachments now produce a coverage explanation. LTIM returned no matches in this run. Annual report discovery remains manual. |
+| 6 | **Failed** · invalid limitations could reach the renderer. Gateway failure discarded evidence. | **Fixed** · empty findings and malformed limitations fail validation. Simulated timeout, malformed output and absent configuration retained cited evidence. A simulated valid answer took the analysis path. **Live model unverified** by the user’s deferred provider choice. |
+| 7 | **Failed** · web writers replaced a shared object using stale reads, and refresh was manual only. | **Fixed locally** · version-conditional writes merge the newest snapshot, with a forced write conflict preserving the research document and market update. Live refresh persisted the 18 histories and 296 filings. Optional foreground refresh fired after advancing the browser clock by 16 minutes. A recent repeat acknowledged the saved snapshot. **Open** · unattended hosting schedule. |
+| 8 | **Failed on inspection** · responses could appear under a changed company or question; empty portfolio searches had no feedback. New controls lacked current browser verification. | **Fixed** · only the latest research request can update the form. Editing clears previous evidence. Chrome at 390 × 844 exercised all four tabs, period selection, saved thresholds, foreground refresh and empty-search feedback. At 1280 × 900 the briefing loaded without horizontal overflow. No uncaught page errors. Native iOS/Safari was not tested. |
+| 9 | **Failed** · the most prominent research link advertised a comparison but opened a generic search. | **Fixed** · link opens Wipro’s four-quarter comparison with eight PDF page citations across five earnings calls. The Q3 FY26 forecast excluded HARMAN, so the comparable growth figure is 0.6% versus 1.4% including the acquisition. Values are manually transcribed. Other tickers use general evidence search. Financial table extraction and executive bios are optional brief examples outside this slice. |
+| 10 | **Partial** · source package existed, submission materials were incomplete. | **Local portion ready** · reviewed ZIP, setup guide, plan, audit log and covering-note draft. **External delivery open** · reviewer-accessible prototype, GitHub repository and full conversation export. An owner-only site also needs a reviewer access arrangement before submission. |
+
+The five baseline regressions all failed against the original implementation and passed after repair. Further tests exercise provider fallback, conflicting writes and transcript notices. The current build’s real browser checks used the local sign-in path. The documented live refresh is separate from simulated provider and storage-failure tests.

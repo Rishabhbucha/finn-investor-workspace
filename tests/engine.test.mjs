@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {change,marketAlert,digest,retrieve,validateAnswer,symbolOf,classify} from '../lib/engine.mjs';
+const data=JSON.parse(readFileSync(new URL('../data/snapshot.json',import.meta.url)));
+test('percentage calculation rejects zero and negative baselines',()=>{assert.equal(change(120,100),20);assert.equal(change(1,0),null);assert.equal(change(1,-10),null)});
+test('volume threshold excludes today from supplied baseline and is configurable',()=>{const p={close:101,previousClose:100,volume:240,averageVolume:100};assert.equal(marketAlert(p,{price:3,volume:2}).triggered,true);assert.equal(marketAlert(p,{price:3,volume:3}).triggered,false)});
+test('digest deduplicates, filters company, time and future records',()=>{const t=Date.parse('2026-11-09T12:00:00Z');const a={symbol:'INFY',url:'https://example.com/1',publishedAt:'2026-11-09T10:00:00Z',category:'results',priority:90};assert.equal(digest([a,a,{...a,url:'b',publishedAt:'2026-11-10T10:00:00Z'},{...a,url:'c',symbol:'TCS'}],{symbols:['INFY'],now:t}).length,1)});
+test('ticker normalisation and input validation',()=>{assert.equal(symbolOf(' infy.ns '),'INFY');assert.throws(()=>symbolOf('../bad'))});
+test('source retrieval cannot leak other companies or secondary documents',()=>{const docs=[{id:'1',symbol:'INFY',type:'transcript',chunks:[{text:'Revenue guidance growth',page:1}]},{id:'2',symbol:'TCS',type:'transcript',chunks:[{text:'Revenue guidance growth',page:1}]},{id:'3',symbol:'INFY',type:'news',chunks:[{text:'Revenue guidance growth',page:1}]}];const r=retrieve(docs,'INFY','revenue guidance');assert.equal(r.length,1);assert.equal(r[0].documentId,'1')});
+test('reject fabricated or missing source references',()=>{assert.throws(()=>validateAnswer({summary:'x',claims:[{text:'x',citations:['S99']}]},[{citation:'S1'}]));assert.throws(()=>validateAnswer({summary:'x',claims:[]},[]))});
+test('real snapshot contains 18 valid market histories and source-linked filings',()=>{assert.equal(data.prices.length,18);assert.ok(data.announcements.length>0);for(const a of data.announcements){assert.ok(a.url.startsWith('https://nsearchives.nseindia.com/'));assert.ok(Number.isFinite(Date.parse(a.publishedAt)))}});
+test('real research corpus covers three companies and includes annual report',()=>{assert.ok(new Set(data.documents.map(d=>d.symbol)).size>=3);assert.ok(data.documents.some(d=>d.type==='annual_report'));assert.ok(retrieve(data.documents,'INFY','margin guidance revenue').length>0)});
+test('classification distinguishes transcript from routine notices',()=>{assert.equal(classify('Earnings call transcript').category,'earnings_call');assert.equal(classify('Compliance certificate').category,'routine')});
