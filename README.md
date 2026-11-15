@@ -84,3 +84,9 @@ Market watch polls while the page is open. Quotes may be delayed. FINN does not 
 Run `npm test`, `npm run lint`, `npx tsc --noEmit` and `npm run build`. The 14 November acceptance review is in CRITIQUE.md. BUILD_LOG.md records milestone outputs. COVERING_NOTE.md is a draft with placeholders for the submission links. The full AI conversation export is a separate submission item.
 
 The optional commercial model is unselected. Citation validation does not establish that a model claim is supported by the cited text. Annual reports need manual import. Automated cross-company guidance extraction, detailed quarterly financial tables, and split-adjusted price alerts remain outside this build. The project has been verified locally. Hosted production access and GitHub delivery are pending.
+
+## Deploy with GitHub Actions
+
+The Deploy FINN workflow builds and deploys main to Cloudflare Workers. Create the private R2 bucket finn-investor-data in the target Cloudflare account. Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in GitHub repository Actions secrets. Use an account-scoped Worker deployment token. Run Deploy FINN from the Actions tab or push to main. Wrangler prints the deployed URL.
+
+Visitors can use the dashboard, portfolio, watchlist and research over indexed documents. To enable reviewer sign-in for refresh, transcript discovery and configured AI synthesis, set the Worker secret FINN_REVIEW_PASSWORD to a strong ASCII password. Use the username reviewer. The original Sites hosting uses its own sign-in.

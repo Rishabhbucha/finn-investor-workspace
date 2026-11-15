@@ -61,6 +61,12 @@ export default defineConfig(async ({ command }) => {
         inspectorPort: false,
         config: {
           ...localBindingConfig,
+          ...(process.env.FINN_DEPLOY_TARGET === "cloudflare" ? {
+            name: "finn-investor-workspace",
+            workers_dev: true,
+            r2_buckets: [{ binding: "BUCKET", bucket_name: "finn-investor-data" }],
+            vars: { FINN_STANDALONE: "1" },
+          } : {}),
           ...(command === "serve"
             ? {
                 services: [
